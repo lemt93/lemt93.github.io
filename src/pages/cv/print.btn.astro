@@ -1,0 +1,15 @@
+---
+
+---
+
+<button id="print-btn" class="text-blue-500 absolute right-0 print:hidden">
+  Print/Download as PDF
+</button>
+
+<script>
+  function handlePrintBtnClicked() {
+    window.print();
+  }
+
+  document.getElementById('print-btn')?.addEventListener('click', handlePrintBtnClicked)
+</script>

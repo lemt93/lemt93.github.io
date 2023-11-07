@@ -1,0 +1,27 @@
+---
+
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="generator" content={Astro.generator} />
+  <title>Astro</title>
+</head>
+<body>
+<div class="flex flex-wrap w-full justify-center items-center">
+  <div class="p-2 md:w-3/4 relative">
+    <slot />
+  </div>
+
+  <footer class="print:hidden flex-grow text-center w-full p-4 mt-4">
+    Tam Minh Le CV - Built with
+    <a href="https://astro.build/" target="_blank" class="text-yellow-500">
+      Astro
+    </a>
+  </footer>
+</div>
+</body>
+</html>
+

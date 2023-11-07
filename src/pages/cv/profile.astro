@@ -1,0 +1,58 @@
+---
+import { Image } from 'astro:assets';
+const findMeItems = [
+  {
+    key: 'github',
+    href: 'https://github.com/lemt93',
+    label: '/lemt93',
+    name: 'GitHub'
+  },
+  {
+    key: 'linkedin',
+    href: 'https://www.linkedin.com/in/tammle93/',
+    label: '/in/tammle93',
+    name: 'LinkedIn'
+  },
+  {
+    key: 'gmail',
+    href: 'mailto:lemt93@gmail.com',
+    label: 'lemt93@gmail.com',
+    name: 'Email'
+  },
+  {
+    key: 'skype',
+    href: 'skype:live:lemt93_1?chat',
+    label: 'lemt93@gmail.com',
+    name: 'Skype'
+  }
+];
+---
+<div class="profile flex flex-wrap justify-center">
+  <div class="profile__picture flex-full items-center w-3/5 print:w-1/5 sm:w-1/5 mb-6">
+    <a href="https://github.com/lemt93" target="_blank">
+      <Image src="/profile.jpg"
+             width="120"
+             height="120"
+             class="rounded-full"
+             alt="Profile illustrator"
+      />
+    </a>
+  </div>
+
+  <div class="profile_details px-4 flex-initial w-full print:w-4/5 sm:w-4/5">
+    <ul>
+      {findMeItems.map((item) => (
+        <li class="flex">
+          <div class="flex-initial w-20">{item.name}</div>
+          <div class="flex-auto">
+            <a href={item.href} target="_blank">{item.label}</a>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <blockquote>
+      Curious mind, like to know how everything’s made, how it works..
+      Love to build things that’s lightweight and fast by default!
+    </blockquote>
+  </div>
+</div>
