@@ -1,21 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import {
-    EditorView,
-    lineNumbers,
-    highlightActiveLine, keymap
-  } from '@codemirror/view'
   import { EditorState } from '@codemirror/state';
+  import { EditorView, lineNumbers, highlightActiveLine, keymap } from '@codemirror/view'
   import { defaultKeymap, historyKeymap, indentWithTab, history } from '@codemirror/commands';
+  import { syntaxHighlighting, defaultHighlightStyle, indentOnInput, HighlightStyle } from '@codemirror/language';
+  import { javascript, esLint as jsLinter } from '@codemirror/lang-javascript';
+  import { linter, lintGutter } from '@codemirror/lint';
+  import { tags } from '@lezer/highlight';
 
-  import { tags } from "@lezer/highlight";
-  import {
-    syntaxHighlighting,
-    defaultHighlightStyle,
-    indentOnInput,
-    HighlightStyle
-  } from '@codemirror/language';
-  import { javascript } from '@codemirror/lang-javascript';
+  import ts from "typescript"
+  import { createSystem, createVirtualTypeScriptEnvironment, createDefaultMapFromCDN, createVirtualCompilerHost } from '@typescript/vfs'
 
   let editorContainerElement: HTMLElement = null;
 
@@ -58,14 +52,50 @@
       "border-right-color": "rgba(44, 44, 44, 1)",
       background: "rgba(38, 38, 38, 1)"
     },
-  })
+  });
+
+  const DEFAULT_STORAGE_VALUE = "\r\n\r\n\r\n\r\n\r\n";
+  const TS_COMPILER_OPTIONS = {
+    target: ts.ScriptTarget.ES2015,
+  };
+
+  async function initTs() {
+    const defaultFsMap = await createDefaultMapFromCDN(TS_COMPILER_OPTIONS, ts.version, false, ts);
+    defaultFsMap.set('editor.ts', JSON.parse(localStorage.getItem('editor')  ?? JSON.stringify(DEFAULT_STORAGE_VALUE)));
+    defaultFsMap.set('another.ts', 'export const test = 1; ');
+
+    const system = createSystem(defaultFsMap);
+    const tsEnv = createVirtualTypeScriptEnvironment(system, [], ts);
+    const host = createVirtualCompilerHost(system, TS_COMPILER_OPTIONS, ts);
+    // tsEnv.createFile('/editor.ts', JSON.parse(localStorage.getItem('editor')  ?? JSON.stringify(DEFAULT_STORAGE_VALUE)));
+    // tsEnv.createFile('/another.ts', 'export const test = 1; ');
+
+    // host.updateFile('/editor.ts', 'export const test = 1; ');
+    // host.updateFile('/another.ts', 'export const test = 1; ');
+
+    const program = ts.createProgram({
+      rootNames: [...defaultFsMap.keys()],
+      options: {
+        sourceMap: true,
+        target: ts.ScriptTarget.ES2015
+      },
+      host: host.compilerHost
+    });
+    program.emit();
+    console.log(defaultFsMap.get('editor.js'));
+
+    return tsEnv;
+  }
 
 
-  onMount(() => {
+
+
+  onMount(async () => {
+    let tsEnv = await initTs();
     let editorView = new EditorView({
       parent: editorContainerElement,
       state: EditorState.create({
-        doc: JSON.parse(localStorage.getItem('editor')) ?? '',
+        doc: JSON.parse(localStorage.getItem('editor')  ?? JSON.stringify(DEFAULT_STORAGE_VALUE)),
         extensions: [
           draculaTheme,
           EditorView.lineWrapping,
@@ -81,6 +111,20 @@
 
           history(),
 
+          // Linting
+          // linter(view => {
+          //   const tsEnvSemanticDiagnostic = tsEnv.languageService.getSemanticDiagnostics('/editor.ts');
+          //
+          //   return tsEnvSemanticDiagnostic.map(item => ({
+          //     severity: 'error',
+          //     from: item.start,
+          //     to: (item.start + item.length),
+          //     message: (typeof item.messageText === 'string') ? item.messageText : item.messageText.messageText
+          //   }));
+          // }),
+          lintGutter(),
+
+
           // Keymaps
           keymap.of([
             ...defaultKeymap,
@@ -88,11 +132,20 @@
             indentWithTab
           ]),
           EditorView.updateListener.of((viewUpdate) => {
-            localStorage.setItem('editor', JSON.stringify(viewUpdate.state.toJSON().doc));
+            if (viewUpdate.docChanged) {
+              const doc = viewUpdate.state.toJSON().doc;
+              const json = !!doc ? doc : DEFAULT_STORAGE_VALUE;
+              localStorage.setItem('editor', JSON.stringify(json));
+              // tsEnv.updateFile('/editor.ts', json);
+            }
+
           })
         ],
       })
     });
+
+
+
   });
 </script>
 
