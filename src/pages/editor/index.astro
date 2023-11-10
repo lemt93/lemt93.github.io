@@ -1,5 +1,12 @@
 ---
 import CodeEditor from '@components/code.editor.svelte';
+
+import ts from "typescript"
+import { createDefaultMapFromNodeModules } from '@typescript/vfs';
+
+const defaultTypeScriptTypesMap = createDefaultMapFromNodeModules({
+  target: ts.ScriptTarget.ES2015,
+});
 ---
 <html lang="en">
 <head>
@@ -23,7 +30,7 @@ import CodeEditor from '@components/code.editor.svelte';
 <body>
 
   <div>
-    <CodeEditor client:only="svelte" />
+    <CodeEditor client:only="svelte" typesMap={defaultTypeScriptTypesMap}/>
   </div>
 </body>
 </html>

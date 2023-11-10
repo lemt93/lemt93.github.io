@@ -6,6 +6,7 @@ import mdx from "@astrojs/mdx";
 
 // https://astro.build/config
 export default defineConfig({
+  srcDir: './src',
   integrations: [
     tailwind(),
     svelte(),
