@@ -29,6 +29,8 @@
     "typescript": "^5.2.2"
   },
   "devDependencies": {
+    "playwright": "^1.57.0",
+    "puppeteer-core": "^24.35.0",
     "sass": "^1.69.5"
   }
 }
